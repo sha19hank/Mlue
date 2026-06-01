@@ -641,18 +641,18 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     val onboardingCompleted: StateFlow<Boolean> = settings.onboardingCompleted()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
-    val hintFirstCompletionShown: StateFlow<Boolean> = settings.hintFirstCompletionShown()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val hintFirstStreakShown: StateFlow<Boolean> = settings.hintFirstStreakShown()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val hintInsightsShown: StateFlow<Boolean> = settings.hintInsightsShown()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val hintJournalShown: StateFlow<Boolean> = settings.hintJournalShown()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val hintGoalShown: StateFlow<Boolean> = settings.hintGoalShown()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
-    val hintFocusShown: StateFlow<Boolean> = settings.hintFocusShown()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+    val hintFirstCompletionShown: StateFlow<Boolean?> = settings.hintFirstCompletionShown().map { it as Boolean? }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val hintFirstStreakShown: StateFlow<Boolean?> = settings.hintFirstStreakShown().map { it as Boolean? }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val hintInsightsShown: StateFlow<Boolean?> = settings.hintInsightsShown().map { it as Boolean? }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val hintJournalShown: StateFlow<Boolean?> = settings.hintJournalShown().map { it as Boolean? }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val hintGoalShown: StateFlow<Boolean?> = settings.hintGoalShown().map { it as Boolean? }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val hintFocusShown: StateFlow<Boolean?> = settings.hintFocusShown().map { it as Boolean? }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun setOnboardingCompleted(completed: Boolean) {
         viewModelScope.launch(Dispatchers.IO) { settings.setOnboardingCompleted(completed) }

@@ -72,6 +72,7 @@ fun StatsScreen(
     navController: NavController,
     viewModel: HabitViewModel,
     highlightGoalId: Long? = null,
+    onHighlightConsumed: () -> Unit = {},
     openDialogRequest: Boolean = false,
     onDialogRequestConsumed: () -> Unit = {}
 ) {
@@ -117,6 +118,8 @@ fun StatsScreen(
         if (activeHighlightId != null && goals.any { it.goalId == activeHighlightId }) {
             kotlinx.coroutines.delay(300)
             bringIntoViewRequester.bringIntoView()
+            // After successfully applying the visual focus intent, safely consume the nav argument
+            onHighlightConsumed()
         }
     }
 
@@ -161,7 +164,7 @@ fun StatsScreen(
                 .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 120.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (!hintInsightsShown) {
+            if (hintInsightsShown == false) {
                 com.mlue.app.ui.components.HintChip(
                     text = "Insights improve as more habits are completed.",
                     onDismiss = { viewModel.dismissHintInsights() },

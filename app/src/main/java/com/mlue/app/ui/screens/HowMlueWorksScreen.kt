@@ -60,32 +60,32 @@ fun HowMlueWorksScreen(
             
             EditorialSection(
                 title = "Why Mlue exists",
-                body = "Mlue is designed to help you build consistency gently over time. There are no harsh penalties or aggressive streaks. It simply reflects your effort."
+                body = "Mlue is designed around the quiet power of repetition, not the pressure of perfection. There are no harsh penalties or aggressive streaks. It simply exists to gently reflect your effort over time, helping you build consistency without the anxiety of failure."
             )
 
             EditorialSection(
                 title = "Habits",
-                body = "Habits form the core of your routine. You can create them, set optional reminders, and mark them complete each day. Consistency is tracked over time to reveal patterns."
+                body = "Habits form the foundation of your routines. Small, repeatable actions often matter far more than bursts of intense effort. You can create habits, set optional reminders, and mark them complete each day to watch patterns emerge."
             )
 
             EditorialSection(
                 title = "Goals",
-                body = "Goals group habits into larger outcomes.\n\nFor example:\nGoal: Sleep Better\nHabits:\n• Sleep before 12\n• No caffeine after 8\n• Wake up at 7"
+                body = "Goals exist to give your habits direction and context, rather than acting as a finish line. By grouping smaller habits together—like \"Sleep Better\" or \"Move More\"—you can track your broader progress without getting lost in the details."
             )
 
             EditorialSection(
                 title = "Insights",
-                body = "Insights become more meaningful as your routines develop. They reveal patterns, trends, and how consistently you show up for your habits."
+                body = "Insights become more meaningful as your routines develop. They are meant to be gentle observations, revealing the natural rhythms and trends in how you show up. They are a mirror for reflection, never a judgment on your performance."
             )
 
             EditorialSection(
                 title = "Journal",
-                body = "Journaling is entirely optional. It provides a soft space for reflection, helping to add emotional context to your daily habits."
+                body = "Journaling is an entirely optional, private space. It provides a soft landing spot for daily reflection, helping you add emotional context and meaning to the habits you complete each day."
             )
 
             EditorialSection(
                 title = "Focus Mode",
-                body = "Focus Mode prioritizes your most important habits by hiding background noise and gently sorting your daily view."
+                body = "Sometimes, seeing everything at once can be overwhelming. Focus Mode intentionally reduces noise, gently prioritizing the habits that need your attention today so you can stay present."
             )
 
             Spacer(modifier = Modifier.height(64.dp))

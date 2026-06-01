@@ -180,7 +180,7 @@ fun JournalScreen(
                 contentPadding = PaddingValues(start = 24.dp, top = 16.dp, end = 24.dp, bottom = 104.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (!hintJournalShown) {
+                if (hintJournalShown == false) {
                     item(key = "hintJournal") {
                         com.mlue.app.ui.components.HintChip(
                             text = "Reflection adds context to your routines.",

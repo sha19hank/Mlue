@@ -208,6 +208,9 @@ private fun AppNavHost(viewModel: HabitViewModel) {
                         navController = navController,
                         viewModel = viewModel,
                         highlightGoalId = goalId,
+                        onHighlightConsumed = {
+                            backStackEntry.arguments?.remove("goalId")
+                        },
                         openDialogRequest = goalDialogRequest.value,
                         onDialogRequestConsumed = { goalDialogRequest.value = false }
                     )

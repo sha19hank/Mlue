@@ -419,21 +419,21 @@ fun HomeScreen(
                 }
             }
 
-            if (!hintFirstCompletionShown && completedTodayCount > 0) {
+            if (hintFirstCompletionShown == false && completedTodayCount > 0) {
                 item(key = "hintCompletion") {
                     com.mlue.app.ui.components.HintChip(
                         text = "You're building consistency.",
                         onDismiss = { viewModel.dismissHintFirstCompletion() }
                     )
                 }
-            } else if (!hintFirstStreakShown && displayHabits.any { it.currentStreak > 1 }) {
+            } else if (hintFirstStreakShown == false && displayHabits.any { it.currentStreak > 1 }) {
                 item(key = "hintStreak") {
                     com.mlue.app.ui.components.HintChip(
                         text = "Small repetitions become patterns over time.",
                         onDismiss = { viewModel.dismissHintFirstStreak() }
                     )
                 }
-            } else if (!hintFocusShown && focusMode) {
+            } else if (hintFocusShown == false && focusMode) {
                 item(key = "hintFocus") {
                     com.mlue.app.ui.components.HintChip(
                         text = "Focus Mode prioritizes your most important habits.",
