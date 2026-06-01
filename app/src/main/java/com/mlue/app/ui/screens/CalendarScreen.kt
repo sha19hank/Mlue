@@ -71,10 +71,33 @@ fun CalendarScreen(navController: NavController, viewModel: HabitViewModel) {
     val completedIds by viewModel.selectedDayCompletedHabitIds.collectAsState()
     val journalEntries by viewModel.selectedDayJournalEntries.collectAsState()
 
-    // YearMonth is not Serializable — use plain remember (resets to current month on recreation, clean UX)
-    var displayedMonth by remember { mutableStateOf(YearMonth.now()) }
-    // LocalDate IS Serializable — rememberSaveable preserves selection across config changes
-    var selectedDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
+    val monthSaver = androidx.compose.runtime.saveable.Saver<java.time.YearMonth, String>(
+        save = { it.toString() },
+        restore = { 
+            try { 
+                java.time.YearMonth.parse(it) 
+            } catch (e: Exception) { 
+                android.util.Log.e("MlueState", "Failed to restore YearMonth: $it", e)
+                java.time.YearMonth.now() 
+            } 
+        }
+    )
+    var displayedMonth by rememberSaveable(stateSaver = monthSaver) { mutableStateOf(java.time.YearMonth.now()) }
+    
+    val dateSaver = androidx.compose.runtime.saveable.Saver<java.time.LocalDate?, String>(
+        save = { it?.toString() ?: "" },
+        restore = { 
+            if (it.isNotEmpty()) {
+                try {
+                    java.time.LocalDate.parse(it)
+                } catch (e: Exception) {
+                    android.util.Log.e("MlueState", "Failed to restore LocalDate: $it", e)
+                    null
+                }
+            } else null 
+        }
+    )
+    var selectedDate by rememberSaveable(stateSaver = dateSaver) { mutableStateOf<java.time.LocalDate?>(null) }
     var isSheetOpen by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -171,13 +194,14 @@ fun CalendarScreen(navController: NavController, viewModel: HabitViewModel) {
         }
     }
 
-    if (isSheetOpen && selectedDate != null) {
+    val date = selectedDate
+    if (isSheetOpen && date != null) {
         ModalBottomSheet(
             onDismissRequest = { isSheetOpen = false },
             sheetState = sheetState
         ) {
             DayDetailSheet(
-                date = selectedDate!!,
+                date = date,
                 habits = habits,
                 completedIds = completedIds,
                 journalEntries = journalEntries,
@@ -379,9 +403,15 @@ fun DayDetailSheet(
     journalEntries: List<JournalEntryEntity>,
     goals: List<GoalEntity>
 ) {
-    val completedHabits = habits.filter { completedIds.contains(it.id) && it.isActiveOn(date) }
-    val incompleteHabits = habits.filter { !completedIds.contains(it.id) && it.isScheduledOn(date) }
-    val goalsContributed = goals.filter { goal -> completedHabits.any { it.goalId == goal.goalId } }
+    val completedHabits = remember(habits, completedIds, date) {
+        habits.filter { completedIds.contains(it.id) && it.isActiveOn(date) }
+    }
+    val incompleteHabits = remember(habits, completedIds, date) {
+        habits.filter { !completedIds.contains(it.id) && it.isScheduledOn(date) }
+    }
+    val goalsContributed = remember(goals, completedHabits) {
+        goals.filter { goal -> completedHabits.any { it.goalId == goal.goalId } }
+    }
 
     val total = completedHabits.size + incompleteHabits.size
     val rate = if (total == 0) 0 else (completedHabits.size * 100) / total

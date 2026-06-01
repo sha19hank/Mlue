@@ -278,7 +278,7 @@ fun HabitCard(
                     if (!habit.description.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = habit.description!!,
+                            text = habit.description,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.graphicsLayer { alpha = 0.85f }
@@ -291,7 +291,7 @@ fun HabitCard(
                             onClick = { },
                             label = {
                                 Text(
-                                    habit.category!!,
+                                    habit.category,
                                     style = MaterialTheme.typography.labelSmall,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis

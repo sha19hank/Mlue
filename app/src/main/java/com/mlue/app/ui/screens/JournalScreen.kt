@@ -56,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -123,7 +124,7 @@ fun JournalScreen(
     val today = LocalDate.now()
     val yesterday = today.minusDays(1)
 
-    val groupedEntries = remember(entries) {
+    val groupedEntries = remember(entries, today) {
         entries.groupBy { entry ->
             when (entry.date) {
                 today -> "Today"
@@ -202,7 +203,7 @@ fun JournalScreen(
                             modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                         )
                     }
-                    items(groupedEntries[sectionKey]!!, key = { it.id }) { entry ->
+                    items(groupedEntries[sectionKey] ?: emptyList(), key = { it.id }) { entry ->
                         JournalCard(
                             entry = entry,
                             onClick = {
@@ -271,7 +272,7 @@ fun JournalScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.deleteJournalEntry(entryToDelete!!)
+                        entryToDelete?.let { viewModel.deleteJournalEntry(it) }
                         entryToDelete = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
@@ -455,15 +456,20 @@ fun JournalEditor(
 ) {
     val context = LocalContext.current
 
-    // Use plain remember (not rememberSaveable) + no explicit key here because
-    // the parent key(editingEntry?.id) block already forces full recomposition
-    // when entry identity changes — preventing any state bleed between entries.
-    var title by remember { mutableStateOf(initialEntry?.title ?: "") }
-    var body by remember { mutableStateOf(initialEntry?.body ?: "") }
-    var mood by remember { mutableStateOf(initialEntry?.mood ?: "") }
-    var entryDate by remember { mutableStateOf(initialEntry?.date ?: LocalDate.now()) }
+    // Use rememberSaveable to protect drafts from process death.
+    // Keying by initialEntry?.id prevents state bleed when switching edited entries.
+    var title by rememberSaveable(initialEntry?.id) { mutableStateOf(initialEntry?.title ?: "") }
+    var body by rememberSaveable(initialEntry?.id) { mutableStateOf(initialEntry?.body ?: "") }
+    var mood by rememberSaveable(initialEntry?.id) { mutableStateOf(initialEntry?.mood ?: "") }
+    
+    val dateSaver = androidx.compose.runtime.saveable.Saver<java.time.LocalDate, Long>(
+        save = { it.toEpochDay() },
+        restore = { java.time.LocalDate.ofEpochDay(it) }
+    )
+    var entryDate by rememberSaveable(initialEntry?.id, stateSaver = dateSaver) { mutableStateOf(initialEntry?.date ?: LocalDate.now()) }
+    
     // Journal color — 0 = neutral (no tint). Reuses habit card palette.
-    var selectedColor by remember { mutableStateOf(initialEntry?.color ?: 0) }
+    var selectedColor by rememberSaveable(initialEntry?.id) { mutableStateOf(initialEntry?.color ?: 0) }
 
     // Static opaque token for focused container — no alpha copy of Material-derived surfaceVariant
     val editorFocusedBg = if (MaterialTheme.colorScheme.background.luminance() > 0.5f)

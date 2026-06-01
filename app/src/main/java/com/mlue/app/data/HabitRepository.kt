@@ -114,29 +114,31 @@ class HabitRepository(
         return dao.insertHabit(habit)
     }
 
-    suspend fun markCompleted(habit: HabitEntity, today: LocalDate): Int? {
-        if (!habit.isScheduledOn(today)) return null
-        if (habit.lastCompletedDate == today) return null
-        if (habit.lastCompletedDate != null && habit.lastCompletedDate.isAfter(today)) return null
+    suspend fun markCompleted(staleHabit: HabitEntity, today: LocalDate): Int? {
+        return database.withTransaction {
+            val habit = dao.getHabitById(staleHabit.id) ?: return@withTransaction null
+            
+            if (!habit.isScheduledOn(today)) return@withTransaction null
+            if (habit.lastCompletedDate == today) return@withTransaction null
+            if (habit.lastCompletedDate != null && habit.lastCompletedDate.isAfter(today)) return@withTransaction null
 
-        val completedToday = dao.hasCompletionForDate(habit.id, today.toString()) > 0
-        if (completedToday) return null
+            val completedToday = dao.hasCompletionForDate(habit.id, today.toString()) > 0
+            if (completedToday) return@withTransaction null
 
-        val lastCompleted = habit.lastCompletedDate
-        val previousScheduled = previousScheduledDate(habit, today)
-        val newStreak = if (lastCompleted != null && previousScheduled != null && lastCompleted == previousScheduled) {
-            habit.currentStreak + 1
-        } else {
-            1
-        }
-        val longest = maxOf(habit.longestStreak, newStreak)
-        val tokenAward = milestoneTokenAward(newStreak)
-        val alreadyAwarded = settings.hasAwardedTokenForHabitOnDate(habit.id, today)
+            val lastCompleted = habit.lastCompletedDate
+            val previousScheduled = previousScheduledDate(habit, today)
+            val newStreak = if (lastCompleted != null && previousScheduled != null && lastCompleted == previousScheduled) {
+                habit.currentStreak + 1
+            } else {
+                1
+            }
+            val longest = maxOf(habit.longestStreak, newStreak)
+            val tokenAward = milestoneTokenAward(newStreak)
+            val alreadyAwarded = settings.hasAwardedTokenForHabitOnDate(habit.id, today)
 
-        val milestoneTrigger = newStreak > habit.highestCelebratedMilestone && newStreak in listOf(3, 7, 14, 30, 50, 100)
-        val updatedMilestone = if (milestoneTrigger) newStreak else habit.highestCelebratedMilestone
+            val milestoneTrigger = newStreak > habit.highestCelebratedMilestone && newStreak in listOf(3, 7, 14, 30, 50, 100)
+            val updatedMilestone = if (milestoneTrigger) newStreak else habit.highestCelebratedMilestone
 
-        database.withTransaction {
             val token = if (tokenAward > 0 && !alreadyAwarded) dao.getTokenOnce() ?: TokenEntity() else null
             dao.updateHabit(
                 habit.copy(
@@ -150,20 +152,23 @@ class HabitRepository(
             if (tokenAward > 0 && token != null && !alreadyAwarded) {
                 dao.upsertToken(token.copy(count = token.count + tokenAward))
             }
+            
+            if (tokenAward > 0 && !alreadyAwarded) {
+                settings.setAwardedTokenForHabitOnDate(habit.id, today)
+            }
+            settings.clearPreviousStreak(habit.id)
+            
+            if (milestoneTrigger) newStreak else null
         }
-        if (tokenAward > 0 && !alreadyAwarded) {
-            settings.setAwardedTokenForHabitOnDate(habit.id, today)
-        }
-        settings.clearPreviousStreak(habit.id)
-        
-        return if (milestoneTrigger) newStreak else null
     }
 
-    suspend fun markUncompleted(habit: HabitEntity, today: LocalDate) {
-        val completedToday = dao.hasCompletionForDate(habit.id, today.toString()) > 0
-        if (!completedToday) return
-
+    suspend fun markUncompleted(staleHabit: HabitEntity, today: LocalDate) {
         database.withTransaction {
+            val habit = dao.getHabitById(staleHabit.id) ?: return@withTransaction
+            
+            val completedToday = dao.hasCompletionForDate(habit.id, today.toString()) > 0
+            if (!completedToday) return@withTransaction
+
             dao.deleteCompletionForDate(habit.id, today.toString())
             
             val completions = dao.getCompletionsForHabitDesc(habit.id)

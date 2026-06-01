@@ -84,7 +84,7 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             completions.forEach { c ->
                 val dateStr = c.completionDate.toString()
                 if (counts.containsKey(dateStr)) {
-                    counts[dateStr] = counts[dateStr]!! + 1
+                    counts[dateStr] = counts.getOrDefault(dateStr, 0) + 1
                 }
             }
 
@@ -335,8 +335,10 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
     val calendarDays: StateFlow<List<CalendarDayState>> = _calendarDays.asStateFlow()
 
     private var calendarDirty = true
+    private var lastRefreshDate: LocalDate? = null
 
     init {
+        lastRefreshDate = LocalDate.now()
         viewModelScope.launch(Dispatchers.IO) {
             repository.refreshBrokenStreaks(LocalDate.now())
             // Restore all alarms on startup — ensures reminders survive process death
@@ -344,8 +346,18 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             goalDeadlineScheduler.scheduleAll()
             loadCalendar(YearMonth.now())
         }
+    }
 
-
+    fun onAppResumed() {
+        val today = LocalDate.now()
+        if (today != lastRefreshDate) {
+            lastRefreshDate = today
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.refreshBrokenStreaks(today)
+                calendarDirty = true
+                loadCalendar(YearMonth.now())
+            }
+        }
     }
 
     fun addHabit(
@@ -762,8 +774,9 @@ private fun buildInsights(
     // --- Active streaks ---
     val streaking = activeHabits.filter { it.currentStreak >= 3 }
     if (streaking.isNotEmpty()) {
-        val top = streaking.maxByOrNull { it.currentStreak }!!
-        insights.add("${top.name} is on a ${top.currentStreak}-day streak. Keep it going!")
+        streaking.maxByOrNull { it.currentStreak }?.let { top ->
+            insights.add("${top.name} is on a ${top.currentStreak}-day streak. Keep it going!")
+        }
     }
 
     // --- Missed habit pattern ---

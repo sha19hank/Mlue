@@ -90,6 +90,19 @@ private fun AppNavHost(viewModel: HabitViewModel) {
     val cachedTheme = viewModel.getCachedTheme()
     val darkMode by viewModel.darkModeEnabled.collectAsState(initial = cachedTheme ?: systemDark)
 
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.onAppResumed()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val rawRoute = navBackStackEntry?.destination?.route ?: ""
     val currentRoute = rawRoute.substringBefore("?")
@@ -99,8 +112,6 @@ private fun AppNavHost(viewModel: HabitViewModel) {
     val journalDialogRequest = rememberSaveable { mutableStateOf(false) }
     val goalDialogRequest = rememberSaveable { mutableStateOf(false) }
 
-    val habits by viewModel.habits.collectAsState()
-    val onboardingCompleted by viewModel.onboardingCompleted.collectAsState()
     // Tracks whether the journal editor overlay is open — used to hide the global FAB
     // so the editor's own Save/Close actions are the only action surface.
     var journalEditorOpen by remember { mutableStateOf(false) }

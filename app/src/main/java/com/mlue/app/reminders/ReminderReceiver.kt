@@ -39,6 +39,16 @@ class ReminderReceiver : BroadcastReceiver() {
                     return@launch
                 }
 
+                // WS4: Smart Notification Suppression
+                // Do not notify if the habit is already completed today.
+                // We check the DB directly to be robust against partial completions or multiple events.
+                val todayStr = java.time.LocalDate.now().toString()
+                if (dao.hasCompletionForDate(habitId, todayStr) > 0) {
+                    android.util.Log.d("MlueReminder", "Reminder suppressed: Habit $habitId already completed today.")
+                    pendingResult.finish()
+                    return@launch
+                }
+
                 // Build tap-to-open action — opens app on notification tap
                 val tapIntent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

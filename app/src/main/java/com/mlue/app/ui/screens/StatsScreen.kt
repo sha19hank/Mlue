@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
@@ -154,8 +155,10 @@ fun StatsScreen(
                 .pointerInput(Unit) {
                     awaitPointerEventScope {
                         while (true) {
-                            awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
-                            if (activeHighlightId != null) activeHighlightId = null
+                            val event = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                            if (event.type == androidx.compose.ui.input.pointer.PointerEventType.Press && activeHighlightId != null) {
+                                activeHighlightId = null
+                            }
                         }
                     }
                 }
@@ -737,26 +740,26 @@ fun StatsScreen(
         )
     }
 
-    if (goalToDelete != null) {
+    goalToDelete?.let { goal ->
         AlertDialog(
             onDismissRequest = { goalToDelete = null },
-            title = { Text("Delete Goal?") },
-            text = { Text("Are you sure you want to delete '${goalToDelete!!.title}'? Your habits will remain, but they will be disconnected from this goal.") },
+            title = { Text("Delete Goal") },
+            text = { Text("Are you sure you want to delete '${goal.title}'? Your habits will remain, but they will be disconnected from this goal.") },
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.deleteGoal(goalToDelete!!)
+                        viewModel.deleteGoal(goal)
                         goalToDelete = null
                     },
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Delete")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { goalToDelete = null }) { Text("Cancel") }
+                TextButton(onClick = { goalToDelete = null }) {
+                    Text("Cancel")
+                }
             }
         )
     }

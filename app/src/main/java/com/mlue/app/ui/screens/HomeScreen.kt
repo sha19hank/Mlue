@@ -179,6 +179,7 @@ fun HomeScreen(
         onScrollStateChange(isScrollingDown)
     }
 
+    var habitToDelete by remember { mutableStateOf<com.mlue.app.data.HabitEntity?>(null) }
     var milestoneEvent by remember { mutableStateOf<com.mlue.app.viewmodel.MilestoneEvent?>(null) }
     LaunchedEffect(viewModel) {
         viewModel.milestoneEvents.collect { event ->
@@ -771,7 +772,7 @@ fun HomeScreen(
                         viewModel.toggleHabitCompletion(habit)
                     },
                     onDelete = {
-                        viewModel.deleteHabit(habit)
+                        habitToDelete = habit
                     },
                     onFreeze = {
                         viewModel.tryBuyStreakFreeze(habit) { frozen ->
@@ -925,6 +926,29 @@ fun HomeScreen(
         }
     }
 
+    habitToDelete?.let { habit ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { habitToDelete = null },
+            title = { Text("Delete Habit") },
+            text = { Text("Are you sure you want to delete '${habit.name}'? All completions and statistics will be removed.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteHabit(habit)
+                        habitToDelete = null
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { habitToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable

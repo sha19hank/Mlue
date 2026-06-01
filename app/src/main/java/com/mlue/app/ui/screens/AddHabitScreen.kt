@@ -78,13 +78,30 @@ fun AddHabitScreen(
     val habitToEdit = remember(habitId, habits) {
         if (habitId != null) habits.firstOrNull { it.id == habitId } else null
     }
-    var name by remember { mutableStateOf(prefillTitle ?: "") }
-    var description by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
-    var selectedDays by remember { mutableStateOf(setOf<Int>()) }
-    var reminderEnabled by remember { mutableStateOf(false) }
-    var reminderTime by remember { mutableStateOf(LocalTime.of(9, 0)) }
-    var selectedColor by remember { mutableStateOf(DEFAULT_COLORS.first()) }
+    var name by rememberSaveable { mutableStateOf(prefillTitle ?: "") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var category by rememberSaveable { mutableStateOf("") }
+    
+    val setSaver = androidx.compose.runtime.saveable.Saver<Set<Int>, List<Int>>(
+        save = { it.toList() },
+        restore = { it.toSet() }
+    )
+    var selectedDays by rememberSaveable(stateSaver = setSaver) { mutableStateOf(setOf<Int>()) }
+    var reminderEnabled by rememberSaveable { mutableStateOf(false) }
+    
+    val timeSaver = androidx.compose.runtime.saveable.Saver<java.time.LocalTime, String>(
+        save = { it.toString() },
+        restore = { 
+            try {
+                java.time.LocalTime.parse(it) 
+            } catch (e: Exception) {
+                android.util.Log.e("MlueState", "Failed to restore LocalTime: $it", e)
+                java.time.LocalTime.of(9, 0)
+            }
+        }
+    )
+    var reminderTime by rememberSaveable(stateSaver = timeSaver) { mutableStateOf(java.time.LocalTime.of(9, 0)) }
+    var selectedColor by rememberSaveable { mutableStateOf(DEFAULT_COLORS.first()) }
     var showNameError by remember { mutableStateOf(false) }
     var showDaysError by remember { mutableStateOf(false) }
     var goalExpanded by remember { mutableStateOf(false) }
@@ -106,7 +123,7 @@ fun AddHabitScreen(
         }
         // If granted, reminderEnabled stays true — user enabled the toggle before we asked
     }
-    var selectedGoalId by remember { mutableStateOf<Long?>(null) }
+    var selectedGoalId by rememberSaveable { mutableStateOf<Long?>(null) }
     val goals by viewModel.goals.collectAsState()
     val context = LocalContext.current
 
@@ -142,18 +159,26 @@ fun AddHabitScreen(
 
     val isFirstHabit = habitId == null && habits.isEmpty()
 
+    var isInitialized by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(habitToEdit, prefilledGoalId) {
-        if (habitToEdit != null) {
-            name = habitToEdit.name
-            description = habitToEdit.description ?: ""
-            category = habitToEdit.category ?: ""
-            selectedDays = habitToEdit.scheduledDays.toSet()
-            reminderEnabled = habitToEdit.reminderEnabled
-            reminderTime = habitToEdit.reminderTime ?: LocalTime.of(9, 0)
-            selectedColor = habitToEdit.color.takeIf { it != 0 } ?: DEFAULT_COLORS.first()
-            selectedGoalId = habitToEdit.goalId
-        } else if (prefilledGoalId != null) {
-            selectedGoalId = prefilledGoalId
+        if (!isInitialized) {
+            if (habitToEdit != null) {
+                name = habitToEdit.name
+                description = habitToEdit.description ?: ""
+                category = habitToEdit.category ?: ""
+                selectedDays = habitToEdit.scheduledDays.toSet()
+                reminderEnabled = habitToEdit.reminderEnabled
+                reminderTime = habitToEdit.reminderTime ?: LocalTime.of(9, 0)
+                selectedColor = habitToEdit.color.takeIf { it != 0 } ?: DEFAULT_COLORS.first()
+                selectedGoalId = habitToEdit.goalId
+                isInitialized = true
+            } else if (prefilledGoalId != null) {
+                selectedGoalId = prefilledGoalId
+                isInitialized = true
+            } else if (habitId == null) {
+                isInitialized = true
+            }
         }
     }
 
@@ -275,7 +300,7 @@ fun AddHabitScreen(
                             goalExpanded = false
                         }
                     )
-                    val activeGoals = goals.filter { !it.isCompleted }
+                    val activeGoals = remember(goals) { goals.filter { !it.isCompleted } }
                     activeGoals.forEach { goal ->
                         DropdownMenuItem(
                             text = { Text(goal.title) },
