@@ -24,9 +24,9 @@ And that the best tool for building habits is one you actually trust.
 ## Screenshots
 
 <div align="center">
+  <img src="docs/screenshots/home-dark.jpeg" width="30%" alt="Mlue Home Dark Mode" />
   <img src="docs/screenshots/home-light.jpeg" width="30%" alt="Mlue Home Screen" />
   <img src="docs/screenshots/insight1-dark.jpeg" width="30%" alt="Mlue Insights" />
-  <img src="docs/screenshots/home-dark.jpeg" width="30%" alt="Mlue Home Dark Mode" />
 </div>
 
 <br>
