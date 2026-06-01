@@ -148,7 +148,7 @@ private fun buildWeekdayClusterPhrase(topDows: List<DayOfWeek>): String? {
  */
 private fun recoverySpeedObservation(
     recent: List<HabitCompletionEntity>,
-    today: LocalDate
+    @Suppress("UNUSED_PARAMETER") today: LocalDate
 ): String? {
     val sortedDates = recent.map { it.completionDate }.distinct().sorted()
     if (sortedDates.size < 5) return null

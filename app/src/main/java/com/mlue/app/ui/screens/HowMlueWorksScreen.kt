@@ -30,7 +30,7 @@ import androidx.navigation.NavController
 @Composable
 fun HowMlueWorksScreen(
     navController: NavController,
-    darkMode: Boolean
+    @Suppress("UNUSED_PARAMETER") darkMode: Boolean
 ) {
     Scaffold(
         topBar = {

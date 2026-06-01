@@ -81,7 +81,6 @@ fun StatsScreen(
     val weeklyStats by viewModel.weeklyStats.collectAsState()
     val monthlyCount by viewModel.monthlyCount.collectAsState()
     val focusMode by viewModel.focusModeEnabled.collectAsState()
-    val activeGoal by viewModel.activeGoal.collectAsState()
     val goals by viewModel.goals.collectAsState()
     val goalProgress by viewModel.goalProgress.collectAsState()
 
@@ -103,9 +102,7 @@ fun StatsScreen(
     val prioritizedInsights by viewModel.prioritizedInsights.collectAsState()
     val rhythmInsights by viewModel.rhythmInsights.collectAsState()
     val haptic = LocalHapticFeedback.current
-    val habits by viewModel.habits.collectAsState()
     val hintInsightsShown by viewModel.hintInsightsShown.collectAsState()
-    val hintGoalShown by viewModel.hintGoalShown.collectAsState()
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
@@ -427,13 +424,13 @@ fun StatsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
-                val isLightStats = MaterialTheme.colorScheme.background.luminance() > 0.5f
+                val isLightWeekly = MaterialTheme.colorScheme.background.luminance() > 0.5f
                 // Explicit containerColor — tonalElevation alone can bleed Material You tint on OEMs
                 Surface(
-                    color = if (isLightStats) com.mlue.app.ui.theme.LightSurface
+                    color = if (isLightWeekly) com.mlue.app.ui.theme.LightSurface
                             else com.mlue.app.ui.theme.DarkSurface,
                     shape = MaterialTheme.shapes.medium,
-                    border = if (isLightStats) BorderStroke(0.5.dp, com.mlue.app.ui.theme.LightTopologyBorder) else null
+                    border = if (isLightWeekly) BorderStroke(0.5.dp, com.mlue.app.ui.theme.LightTopologyBorder) else null
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
