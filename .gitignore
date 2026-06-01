@@ -10,10 +10,11 @@ build/
 # Local configuration
 local.properties
 
-# Android Studio / IntelliJ
+# Android Studio / IntelliJ / VS Code
 .idea/
 *.iml
 *.iws
+.vscode/
 *.ipr
 /out/
 captures/
