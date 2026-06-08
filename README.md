@@ -157,6 +157,13 @@ Keep changes focused. Respect the existing architecture. Discuss significant cha
 
 ---
 
+## Legal
+
+- [Privacy Policy](https://sha19hank.github.io/Mlue/privacy-policy)
+- [Terms of Use](https://sha19hank.github.io/Mlue/terms-of-use)
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE) for full text.
