@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-06-08
+
+### Added
+- **Legal Center**: Added native, offline-first viewers for Privacy Policy, Terms of Use, and Open Source Licenses.
+- **Version Info**: Added explicit version information screen displaying the offline-first philosophy.
+
+### Changed
+- **Release Promotion**: Promoted the app from Beta to Version 1.0.0 Production.
+- **Snackbar Physics**: Fixed snackbar clearance to correctly avoid overlapping the bottom dock.
+- **Visual Polish**: Improved the "Create Goal" CTA visual contrast for accessibility.
+- **Reminders**: Improved notification scheduling diagnostics for Doze reliability.
+
+### Removed
+- **Permission Cleanup**: Stripped the unused `ACTIVITY_RECOGNITION` permission for flawless Play Store privacy compliance.
 ## [0.9.0-beta1] - 2026-06-01
 
 ### Added

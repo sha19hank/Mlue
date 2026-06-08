@@ -137,7 +137,7 @@ Or open the project in Android Studio and run the `app` configuration directly.
 
 ## Roadmap
 
-Mlue is in closed beta. Post-beta considerations include:
+Future considerations include:
 
 - [ ] Home screen widget
 - [ ] Optional data export (CSV / JSON)

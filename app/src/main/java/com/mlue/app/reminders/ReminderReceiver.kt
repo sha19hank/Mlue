@@ -24,6 +24,18 @@ class ReminderReceiver : BroadcastReceiver() {
 
         android.util.Log.d("MlueReminder", "ReminderReceiver: onReceive for habitId=$habitId at ${java.time.LocalDateTime.now()}")
 
+        val targetTimeMillis = intent.getLongExtra(EXTRA_TARGET_TIME_MILLIS, -1L)
+        val schedulingMethod = intent.getStringExtra(EXTRA_SCHEDULING_METHOD) ?: "unknown"
+        val canScheduleExact = intent.getBooleanExtra(EXTRA_CAN_SCHEDULE_EXACT, false)
+
+        if (targetTimeMillis != -1L) {
+            val drift = System.currentTimeMillis() - targetTimeMillis
+            android.util.Log.i(
+                "MlueReminder",
+                "DIAGNOSTIC: drift=${drift}ms | method=$schedulingMethod | exact_perm=$canScheduleExact | SDK=${android.os.Build.VERSION.SDK_INT} | OEM=${android.os.Build.MANUFACTURER} | Model=${android.os.Build.MODEL}"
+            )
+        }
+
         // goAsync() keeps the BroadcastReceiver alive past onReceive() return
         // while we do IO work, avoiding main-thread blocking / ANR risk
         val pendingResult = goAsync()
@@ -90,6 +102,9 @@ class ReminderReceiver : BroadcastReceiver() {
         const val ACTION_REMINDER = "com.mlue.app.ACTION_HABIT_REMINDER"
         const val EXTRA_HABIT_ID = "extra_habit_id"
         const val EXTRA_HABIT_NAME = "extra_habit_name"
+        const val EXTRA_TARGET_TIME_MILLIS = "extra_target_time_millis"
+        const val EXTRA_SCHEDULING_METHOD = "extra_scheduling_method"
+        const val EXTRA_CAN_SCHEDULE_EXACT = "extra_can_schedule_exact"
         const val CHANNEL_ID = "habit_reminders"
     }
 }

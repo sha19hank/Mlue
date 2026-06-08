@@ -100,3 +100,8 @@ fun MlueTheme(
         content = content
     )
 }
+
+object AppDimens {
+    // Height of bottom nav dock (72dp) + bottom padding (20dp) + visual spacing (16dp)
+    val BottomDockClearance = 108.dp
+}

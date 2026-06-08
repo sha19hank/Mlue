@@ -52,8 +52,8 @@ class HabitInteractionFeedback(
     fun initialize() {
         if (toneGenerator != null) return
         try {
-            // Volume at 60% — audible but not arcade-like.
-            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 60)
+            // Volume at 75% — premium, noticeable, calm.
+            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 75)
         } catch (e: Exception) {
             // Silently ignore: ToneGenerator unavailable on some low-memory devices
         }

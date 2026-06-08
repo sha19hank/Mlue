@@ -63,7 +63,7 @@ import androidx.compose.ui.draw.shadow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarScreen(navController: NavController, viewModel: HabitViewModel) {
+fun CalendarScreen(viewModel: HabitViewModel) {
     val month by viewModel.calendarMonth.collectAsState()
     val days by viewModel.calendarDays.collectAsState()
     val habits by viewModel.habits.collectAsState()

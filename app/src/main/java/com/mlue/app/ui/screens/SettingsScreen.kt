@@ -20,6 +20,9 @@ import androidx.compose.material.icons.outlined.CenterFocusStrong
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.Policy
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -131,6 +134,38 @@ fun SettingsScreen(navController: NavController, viewModel: HabitViewModel) {
                     label = "How Mlue Works",
                     description = "Understanding habits, goals, and insights",
                     onClick = { navController.navigate("how_works") }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            SettingsSectionLabel("Legal")
+            SettingsCard(isLightMode = isLightMode) {
+                SettingsClickableRow(
+                    icon = androidx.compose.material.icons.Icons.Outlined.Policy,
+                    label = "Privacy Policy",
+                    description = "How your data stays yours",
+                    onClick = { navController.navigate("privacy_policy") }
+                )
+                SettingsDivider(isLightMode)
+                SettingsClickableRow(
+                    icon = androidx.compose.material.icons.Icons.Outlined.Description,
+                    label = "Terms of Use",
+                    description = "Simple usage terms",
+                    onClick = { navController.navigate("terms_of_use") }
+                )
+                SettingsDivider(isLightMode)
+                SettingsClickableRow(
+                    icon = androidx.compose.material.icons.Icons.Outlined.Code,
+                    label = "Open Source Licenses",
+                    description = "Tools that made Mlue possible",
+                    onClick = { navController.navigate("oss_licenses") }
+                )
+                SettingsDivider(isLightMode)
+                SettingsClickableRow(
+                    icon = androidx.compose.material.icons.Icons.Outlined.Info,
+                    label = "Version Information",
+                    description = "App version and details",
+                    onClick = { navController.navigate("version_info") }
                 )
             }
 

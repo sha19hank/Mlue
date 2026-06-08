@@ -12,8 +12,8 @@ android {
         applicationId = "com.mlue.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.9.0-beta1"
+        versionCode = 4
+        versionName = "1.0.0"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -43,6 +43,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -88,4 +89,14 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+tasks.register<Copy>("copyLegalDocs") {
+    from(rootProject.layout.projectDirectory)
+    include("PRIVACY_POLICY.md", "TERMS_OF_USE.md")
+    into(layout.projectDirectory.dir("src/main/assets"))
+}
+
+tasks.named("preBuild") {
+    dependsOn("copyLegalDocs")
 }

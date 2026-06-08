@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
@@ -285,7 +286,14 @@ fun HomeScreen(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { 
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(bottom = com.mlue.app.ui.theme.AppDimens.BottomDockClearance)
+                    .navigationBarsPadding()
+            ) 
+        },
     ) { padding ->
         AnimatedContent(
             targetState = habitsHaveLoaded,
@@ -601,14 +609,10 @@ fun HomeScreen(
                                         restoreState = true
                                     }
                                 },
-                                colors = if (habits.isEmpty()) {
-                                    androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                } else {
-                                    androidx.compose.material3.ButtonDefaults.buttonColors()
-                                },
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                    contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+                                ),
                                 elevation = if (habits.isEmpty()) null else androidx.compose.material3.ButtonDefaults.buttonElevation()
                             ) {
                                 Text("Create Goal")

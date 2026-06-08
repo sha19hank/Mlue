@@ -200,7 +200,7 @@ private fun AppNavHost(viewModel: HabitViewModel) {
                         onScrollStateChange = { scrollingDown -> isFabScrolledDown = scrollingDown }
                     )
                 }
-                composable("calendar") { CalendarScreen(navController = navController, viewModel = viewModel) }
+                composable("calendar") { CalendarScreen(viewModel = viewModel) }
                 composable("journal") {
                     JournalScreen(
                         viewModel = viewModel,
@@ -228,6 +228,10 @@ private fun AppNavHost(viewModel: HabitViewModel) {
                 }
                 composable("settings") { SettingsScreen(navController = navController, viewModel = viewModel) }
                 composable("how_works") { com.mlue.app.ui.screens.HowMlueWorksScreen(navController = navController, darkMode = darkMode) }
+                composable("privacy_policy") { com.mlue.app.ui.screens.LegalDocumentScreen(navController = navController, title = "Privacy Policy", assetFileName = "PRIVACY_POLICY.md") }
+                composable("terms_of_use") { com.mlue.app.ui.screens.LegalDocumentScreen(navController = navController, title = "Terms of Use", assetFileName = "TERMS_OF_USE.md") }
+                composable("oss_licenses") { com.mlue.app.ui.screens.OpenSourceLicensesScreen(navController = navController) }
+                composable("version_info") { com.mlue.app.ui.screens.VersionInfoScreen(navController = navController) }
                 composable(
                     route = "add?habitId={habitId}&goalId={goalId}&prefillTitle={prefillTitle}",
                     arguments = listOf(

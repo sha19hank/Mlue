@@ -52,10 +52,19 @@ class ReminderScheduler(
         val nextTime = nextOccurrence(habit, LocalDate.now(), habit.reminderTime)
         val triggerAtMillis = nextTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
+        val canScheduleExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true // Always available below API 31
+        }
+
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             action = ReminderReceiver.ACTION_REMINDER
             putExtra(ReminderReceiver.EXTRA_HABIT_ID, habit.id)
             putExtra(ReminderReceiver.EXTRA_HABIT_NAME, habit.name)
+            putExtra(ReminderReceiver.EXTRA_TARGET_TIME_MILLIS, triggerAtMillis)
+            putExtra(ReminderReceiver.EXTRA_CAN_SCHEDULE_EXACT, canScheduleExact)
+            putExtra(ReminderReceiver.EXTRA_SCHEDULING_METHOD, if (canScheduleExact) "setExactAndAllowWhileIdle" else "setAndAllowWhileIdle")
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -67,8 +76,8 @@ class ReminderScheduler(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        android.util.Log.d("MlueReminder", "Scheduling habitId=${habit.id} target=$nextTime ms=$triggerAtMillis")
-        setAlarm(triggerAtMillis, pendingIntent)
+        android.util.Log.d("MlueReminder", "Scheduling habitId=${habit.id} target=$nextTime ms=$triggerAtMillis method=${if(canScheduleExact) "exact" else "inexact"}")
+        setAlarm(triggerAtMillis, pendingIntent, canScheduleExact)
     }
 
     /**
@@ -96,12 +105,7 @@ class ReminderScheduler(
      * - Android 12+ with SCHEDULE_EXACT_ALARM: uses setExactAndAllowWhileIdle (precise)
      * - Fallback: uses setAndAllowWhileIdle (may be delayed by Doze, but reliable enough)
      */
-    private fun setAlarm(triggerAtMillis: Long, pendingIntent: PendingIntent) {
-        val canScheduleExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true // Always available below API 31
-        }
+    private fun setAlarm(triggerAtMillis: Long, pendingIntent: PendingIntent, canScheduleExact: Boolean) {
 
         if (canScheduleExact) {
             android.util.Log.d("MlueReminder", "Using exact scheduling (setExactAndAllowWhileIdle)")

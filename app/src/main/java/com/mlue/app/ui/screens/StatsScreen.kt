@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
@@ -140,7 +141,14 @@ fun StatsScreen(
                 title = { Text("Insights") }
             )
         },
-        snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState) }
+        snackbarHost = { 
+            androidx.compose.material3.SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(bottom = com.mlue.app.ui.theme.AppDimens.BottomDockClearance)
+                    .navigationBarsPadding()
+            ) 
+        }
     ) { padding ->
         val scrollState = rememberScrollState()
         Column(
@@ -209,7 +217,11 @@ fun StatsScreen(
                                 goalStartDate = LocalDate.now()
                                 goalDeadline = null
                                 showGoalEditor = true
-                            }
+                            },
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
                         ) {
                             Text("Create Goal")
                         }
