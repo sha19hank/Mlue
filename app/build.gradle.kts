@@ -6,13 +6,13 @@ plugins {
 
 android {
     namespace = "com.mlue.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mlue.app"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 4
+        targetSdk = 35
+        versionCode = 5
         versionName = "1.0.0"
 
         vectorDrawables {
