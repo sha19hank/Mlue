@@ -4,6 +4,7 @@ import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -54,7 +56,7 @@ import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
+
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Modifier
@@ -70,6 +72,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         setContent {
             val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
@@ -157,94 +160,89 @@ private fun AppNavHost(viewModel: HabitViewModel) {
                 )
         )
 
-        // Scaffold owns ONLY screen content — no bottomBar, no FAB, no layout reservation
-        Scaffold(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent
-        ) { padding ->
-            NavHost(
-                navController = navController,
-                startDestination = "today",
-                // Only top padding from Scaffold (status bar insets) — no bottom padding
-                modifier = Modifier.padding(top = padding.calculateTopPadding()),
-                enterTransition = {
-                    androidx.compose.animation.fadeIn(
-                        animationSpec = androidx.compose.animation.core.tween(AppMotion.durationLong)
-                    ) + androidx.compose.animation.scaleIn(
-                        initialScale = 0.97f,
-                        animationSpec = androidx.compose.animation.core.tween(AppMotion.durationLong)
-                    )
-                },
-                exitTransition = {
-                    androidx.compose.animation.fadeOut(
-                        animationSpec = androidx.compose.animation.core.tween(AppMotion.exitDuration)
-                    )
-                },
-                popEnterTransition = {
-                    androidx.compose.animation.fadeIn(
-                        animationSpec = androidx.compose.animation.core.tween(AppMotion.durationMedium)
-                    )
-                },
-                popExitTransition = {
-                    androidx.compose.animation.fadeOut(
-                        animationSpec = androidx.compose.animation.core.tween(AppMotion.exitDuration)
-                    ) + androidx.compose.animation.scaleOut(
-                        targetScale = 0.97f,
-                        animationSpec = androidx.compose.animation.core.tween(AppMotion.exitDuration)
-                    )
-                }
-            ) {
-                composable("today") {
-                    HomeScreen(
-                        navController = navController,
-                        viewModel = viewModel,
-                        onScrollStateChange = { scrollingDown -> isFabScrolledDown = scrollingDown }
-                    )
-                }
-                composable("calendar") { CalendarScreen(viewModel = viewModel) }
-                composable("journal") {
-                    JournalScreen(
-                        viewModel = viewModel,
-                        openDialogRequest = journalDialogRequest.value,
-                        onDialogRequestConsumed = { journalDialogRequest.value = false },
-                        onEditorStateChange = { open -> journalEditorOpen = open }
-                    )
-                }
-                composable(
-                    route = "insights?goalId={goalId}",
-                    arguments = listOf(navArgument("goalId") { type = NavType.LongType; defaultValue = -1L })
-                ) { backStackEntry ->
-                    val goalIdArg = backStackEntry.arguments?.getLong("goalId", -1L) ?: -1L
-                    val goalId = if (goalIdArg != -1L) goalIdArg else null
-                    StatsScreen(
-                        navController = navController,
-                        viewModel = viewModel,
-                        highlightGoalId = goalId,
-                        onHighlightConsumed = {
-                            backStackEntry.arguments?.remove("goalId")
-                        },
-                        openDialogRequest = goalDialogRequest.value,
-                        onDialogRequestConsumed = { goalDialogRequest.value = false }
-                    )
-                }
-                composable("settings") { SettingsScreen(navController = navController, viewModel = viewModel) }
-                composable("how_works") { com.mlue.app.ui.screens.HowMlueWorksScreen(navController = navController, darkMode = darkMode) }
-                composable("privacy_policy") { com.mlue.app.ui.screens.LegalDocumentScreen(navController = navController, title = "Privacy Policy", assetFileName = "PRIVACY_POLICY.md") }
-                composable("terms_of_use") { com.mlue.app.ui.screens.LegalDocumentScreen(navController = navController, title = "Terms of Use", assetFileName = "TERMS_OF_USE.md") }
-                composable("oss_licenses") { com.mlue.app.ui.screens.OpenSourceLicensesScreen(navController = navController) }
-                composable("version_info") { com.mlue.app.ui.screens.VersionInfoScreen(navController = navController) }
-                composable(
-                    route = "add?habitId={habitId}&goalId={goalId}&prefillTitle={prefillTitle}",
-                    arguments = listOf(
-                        navArgument("habitId") { type = NavType.LongType; defaultValue = -1L },
-                        navArgument("goalId") { type = NavType.LongType; defaultValue = -1L },
-                        navArgument("prefillTitle") { type = NavType.StringType; nullable = true }
-                    )
-                ) { backStackEntry ->
-                    val habitId = backStackEntry.arguments?.getLong("habitId").takeIf { it != -1L }
-                    val goalId = backStackEntry.arguments?.getLong("goalId").takeIf { it != -1L }
-                    val prefillTitle = backStackEntry.arguments?.getString("prefillTitle")
-                    AddHabitScreen(navController = navController, viewModel = viewModel, habitId = habitId, prefilledGoalId = goalId, prefillTitle = prefillTitle)
-                }
+        // NavHost — screen-level Scaffolds handle their own insets
+        NavHost(
+            navController = navController,
+            startDestination = "today",
+            modifier = Modifier.fillMaxSize(),
+            enterTransition = {
+                androidx.compose.animation.fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(AppMotion.durationLong)
+                ) + androidx.compose.animation.scaleIn(
+                    initialScale = 0.97f,
+                    animationSpec = androidx.compose.animation.core.tween(AppMotion.durationLong)
+                )
+            },
+            exitTransition = {
+                androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(AppMotion.exitDuration)
+                )
+            },
+            popEnterTransition = {
+                androidx.compose.animation.fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(AppMotion.durationMedium)
+                )
+            },
+            popExitTransition = {
+                androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(AppMotion.exitDuration)
+                ) + androidx.compose.animation.scaleOut(
+                    targetScale = 0.97f,
+                    animationSpec = androidx.compose.animation.core.tween(AppMotion.exitDuration)
+                )
+            }
+        ) {
+            composable("today") {
+                HomeScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    onScrollStateChange = { scrollingDown -> isFabScrolledDown = scrollingDown }
+                )
+            }
+            composable("calendar") { CalendarScreen(viewModel = viewModel) }
+            composable("journal") {
+                JournalScreen(
+                    viewModel = viewModel,
+                    openDialogRequest = journalDialogRequest.value,
+                    onDialogRequestConsumed = { journalDialogRequest.value = false },
+                    onEditorStateChange = { open -> journalEditorOpen = open }
+                )
+            }
+            composable(
+                route = "insights?goalId={goalId}",
+                arguments = listOf(navArgument("goalId") { type = NavType.LongType; defaultValue = -1L })
+            ) { backStackEntry ->
+                val goalIdArg = backStackEntry.arguments?.getLong("goalId", -1L) ?: -1L
+                val goalId = if (goalIdArg != -1L) goalIdArg else null
+                StatsScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    highlightGoalId = goalId,
+                    onHighlightConsumed = {
+                        backStackEntry.arguments?.remove("goalId")
+                    },
+                    openDialogRequest = goalDialogRequest.value,
+                    onDialogRequestConsumed = { goalDialogRequest.value = false }
+                )
+            }
+            composable("settings") { SettingsScreen(navController = navController, viewModel = viewModel) }
+            composable("how_works") { com.mlue.app.ui.screens.HowMlueWorksScreen(navController = navController, darkMode = darkMode) }
+            composable("privacy_policy") { com.mlue.app.ui.screens.LegalDocumentScreen(navController = navController, title = "Privacy Policy", assetFileName = "PRIVACY_POLICY.md") }
+            composable("terms_of_use") { com.mlue.app.ui.screens.LegalDocumentScreen(navController = navController, title = "Terms of Use", assetFileName = "TERMS_OF_USE.md") }
+            composable("oss_licenses") { com.mlue.app.ui.screens.OpenSourceLicensesScreen(navController = navController) }
+            composable("version_info") { com.mlue.app.ui.screens.VersionInfoScreen(navController = navController) }
+            composable(
+                route = "add?habitId={habitId}&goalId={goalId}&prefillTitle={prefillTitle}",
+                arguments = listOf(
+                    navArgument("habitId") { type = NavType.LongType; defaultValue = -1L },
+                    navArgument("goalId") { type = NavType.LongType; defaultValue = -1L },
+                    navArgument("prefillTitle") { type = NavType.StringType; nullable = true }
+                )
+            ) { backStackEntry ->
+                val habitId = backStackEntry.arguments?.getLong("habitId").takeIf { it != -1L }
+                val goalId = backStackEntry.arguments?.getLong("goalId").takeIf { it != -1L }
+                val prefillTitle = backStackEntry.arguments?.getString("prefillTitle")
+                AddHabitScreen(navController = navController, viewModel = viewModel, habitId = habitId, prefilledGoalId = goalId, prefillTitle = prefillTitle)
             }
         }
 
@@ -274,6 +272,7 @@ private fun AppNavHost(viewModel: HabitViewModel) {
                 ),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
                     // FAB sits 108dp from bottom: dock(68) + dock-bottom-pad(20) + gap(20)
                     .offset(x = (-24).dp, y = (-108).dp)
                     // Subtle fade when user scrolls into content — quiet, not aggressive
@@ -346,6 +345,7 @@ private fun BottomNavBar(
     // shadow() must be applied BEFORE clip() so it renders outside the clipped boundary
     NavigationBar(
         modifier = modifier
+            .navigationBarsPadding()
             .padding(horizontal = 20.dp)
             .padding(bottom = 20.dp, top = 0.dp)
             .fillMaxWidth()

@@ -1,5 +1,9 @@
 <resources>
     <style name="Theme.DailyHabitTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- Match LightBackground editorial token — eliminates white flash before first Compose frame -->
+        <item name="android:windowBackground">#F5F1EA</item>
         <item name="android:windowSplashScreenBackground">@color/splash_background</item>
         <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="android:windowSplashScreenAnimationDuration">250</item>
